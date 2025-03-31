@@ -1,6 +1,7 @@
 {
   "name": "workspace",
   "version": "1.0.0",
+  "type": "module",
   "description": "A web application for recognizing yoga poses using machine learning.",
   "main": "electron.js",
   "scripts": {
