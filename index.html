@@ -7,39 +7,61 @@
     <title>Express App</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
-  <div class="download-section">
-    <a href="/electron-dist/YogaPose%20Recognizer.exe" class="download-button">Download Windows App</a>
-  </div>
 <body>
     <div class="container">
         <h1>Yoga Pose Recognition</h1>
-        <div id="poseDisplay">Current Pose: <span id="currentPose">Pose1</span></div>
-        <div id="timerDisplay">Time remaining: <span id="timer">3</span>s</div>
-        <div id="confidenceDisplay">Confidence: <span id="confidence">0</span>%</div>
-        <video id="webcam" autoplay></video>
-        <canvas id="canvas"></canvas>
+        <div class="controls">
+            <button id="startBtn" class="control-button">Start</button>
+            <button id="stopBtn" class="control-button">Stop</button>
+        </div>
+        <div class="status-panel">
+            <div id="poseDisplay">Current Pose: <span id="currentPose">Pose1</span></div>
+            <div id="timerDisplay">Time remaining: <span id="timer">3</span>s</div>
+            <div id="confidenceDisplay">Confidence: <span id="confidence">0</span>%</div>
+        </div>
+        <div class="camera-container">
+            <video id="webcam" autoplay></video>
+            <canvas id="canvas"></canvas>
+        </div>
     </div>
     <script>
-        const ws = new WebSocket('ws://localhost:8080');
+        const ws = new WebSocket('ws://0.0.0.0:8080');
         let detector;
+        let isRunning = false;
         
         async function setupCamera() {
             const video = document.getElementById('webcam');
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: 640,
+                    height: 480,
+                    facingMode: 'user'
+                } 
+            });
             video.srcObject = stream;
+            return new Promise((resolve) => {
+                video.onloadedmetadata = () => {
+                    resolve(video);
+                };
+            });
         }
         
         async function detectPose() {
-            const video = document.getElementById('webcam');
-            const confidence = await detector.estimatePose(video);
+            if (!isRunning) return;
             
-            document.getElementById('confidence').textContent = 
-                Math.round(confidence * 100);
+            const video = document.getElementById('webcam');
+            try {
+                const confidence = await detector.estimatePose(video);
+                const confidencePercentage = Math.round(confidence * 100);
+                document.getElementById('confidence').textContent = confidencePercentage;
                 
-            ws.send(JSON.stringify({
-                type: 'poseDetection',
-                confidence: confidence
-            }));
+                ws.send(JSON.stringify({
+                    type: 'poseDetection',
+                    confidence: confidencePercentage / 100
+                }));
+            } catch (error) {
+                console.error('Error during pose detection:', error);
+            }
         }
         
         ws.onmessage = (event) => {
@@ -53,8 +75,22 @@
             }
         };
         
-        setupCamera();
-        setInterval(detectPose, 100);
+        document.getElementById('startBtn').addEventListener('click', () => {
+            isRunning = true;
+            detectPose();
+        });
+        
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            isRunning = false;
+        });
+        
+        setupCamera().then(() => {
+            setInterval(() => {
+                if (isRunning) {
+                    detectPose();
+                }
+            }, 100);
+        });
     </script>
 </body>
 </html>

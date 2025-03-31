@@ -11,7 +11,7 @@ const app = express();
 let currentPose = 0;
 const poses = ["Pose1", "Pose2", "Pose3"];
 let timer = 3;
-const POSE_THRESHOLD = 0.75;
+const POSE_THRESHOLD = 0.4;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -25,8 +25,8 @@ wss.on('connection', (ws) => {
     if (message.type === 'poseDetection') {
       const confidence = message.confidence;
       if (confidence > POSE_THRESHOLD) {
-        timer -= 1;
-        if (timer <= 0) {
+        timer = Math.max(0, timer - 1);
+        if (timer === 0) {
           currentPose = (currentPose + 1) % poses.length;
           timer = 3;
           ws.send(JSON.stringify({
@@ -40,8 +40,6 @@ wss.on('connection', (ws) => {
             timeLeft: timer
           }));
         }
-      } else {
-        timer = 3;
       }
     }
   });
