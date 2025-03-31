@@ -13,15 +13,17 @@ function createWindow() {
     }
   });
 
-  // Start express server
-  serverApp.use(express.static(path.join(__dirname, 'dist/public')));
+  // Serve static files from root directory
+  serverApp.use(express.static(__dirname));
+  
+  // Serve index.html for all routes
   serverApp.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist/public/index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
   });
 
-  const server = serverApp.listen(5000, '127.0.0.1', () => {
+  const server = serverApp.listen(5000, '0.0.0.0', () => {
     console.log('Server running on port 5000');
-    win.loadURL('http://127.0.0.1:5000');
+    win.loadURL('http://localhost:5000');
   });
 
   app.on('window-all-closed', () => {
