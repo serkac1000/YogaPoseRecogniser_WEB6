@@ -1,5 +1,4 @@
-npm install
-node dist/index.js
+
 {
   "name": "yoga-pose-recognizer",
   "version": "1.0.0",
