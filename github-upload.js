@@ -16,7 +16,7 @@ async function uploadToGithub() {
     execSync('git commit -m "Initial commit: Yoga Pose Recognition App"');
     
     // Add GitHub repository URL (replace with your repository URL)
-    execSync('git remote add origin https://github.com/YOUR_USERNAME/yoga-pose-recognition.git');
+    execSync('git remote add origin https://github.com/serkac1000/YogaPoseRecogniser_WEB6.git');
     
     // Push to GitHub
     execSync('git push -u origin main --force');
