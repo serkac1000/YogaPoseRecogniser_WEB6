@@ -157,7 +157,20 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    // Replacing the original production serving logic
+    import express from 'express';
+    import path from 'path';
+    const app2 = express();
+    app2.use(express.static(path.join(__dirname, 'public')));
+    app2.use(express.static(path.join(__dirname, '..')));
+    app2.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, '..', 'index.html'));
+    });
+    const port2 = 5000;
+    app2.listen(port2, '0.0.0.0', () => {
+      console.log(`Server running at http://0.0.0.0:${port2}`);
+    });
+
   }
   const port = 5e3;
   server.listen({
