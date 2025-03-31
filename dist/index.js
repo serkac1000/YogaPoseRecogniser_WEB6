@@ -12,7 +12,7 @@ const app = express();
 let currentPose = 0;
 const poses = ["Pose1", "Pose2", "Pose3"];
 let timer = 3;
-const POSE_THRESHOLD = 0.4;
+const POSE_THRESHOLD = 0.46; // Increased threshold for better accuracy
 
 app.use(express.static(join(__dirname, 'public')));
 app.use(express.json());

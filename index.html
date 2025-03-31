@@ -25,9 +25,10 @@
         </div>
     </div>
     <script>
-        const ws = new WebSocket('ws://0.0.0.0:8080');
+        const ws = new WebSocket(`ws://${window.location.hostname}:5000`);
         let detector;
         let isRunning = false;
+        let lastConfidence = 0;
         
         async function setupCamera() {
             const video = document.getElementById('webcam');
@@ -53,12 +54,19 @@
             try {
                 const confidence = await detector.estimatePose(video);
                 const confidencePercentage = Math.round(confidence * 100);
-                document.getElementById('confidence').textContent = confidencePercentage;
                 
-                ws.send(JSON.stringify({
-                    type: 'poseDetection',
-                    confidence: confidencePercentage / 100
-                }));
+                // Smooth confidence values to reduce jitter
+                lastConfidence = lastConfidence * 0.7 + confidencePercentage * 0.3;
+                const smoothedConfidence = Math.round(lastConfidence);
+                
+                document.getElementById('confidence').textContent = smoothedConfidence;
+                
+                if (smoothedConfidence > 46) { // Match server threshold
+                    ws.send(JSON.stringify({
+                        type: 'poseDetection',
+                        confidence: smoothedConfidence / 100
+                    }));
+                }
             } catch (error) {
                 console.error('Error during pose detection:', error);
             }
