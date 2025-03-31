@@ -26,6 +26,7 @@
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@replit/vite-plugin-shadcn-theme-json": "^0.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^35.1.2",
     "express": "^4.18.2",
     "nodejs": "^0.0.0",
     "npm": "^11.2.0",
