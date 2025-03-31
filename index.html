@@ -29,6 +29,18 @@
         let detector;
         let isRunning = false;
         let lastConfidence = 0;
+        const MODEL_URL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/';
+        
+        async function loadModel() {
+            try {
+                detector = await tmPose.load(MODEL_URL + 'model.json', MODEL_URL + 'metadata.json');
+                console.log('Model loaded successfully');
+                return true;
+            } catch (error) {
+                console.error('Error loading model:', error);
+                return false;
+            }
+        }
         
         async function setupCamera() {
             const video = document.getElementById('webcam');
@@ -40,11 +52,19 @@
                 } 
             });
             video.srcObject = stream;
-            return new Promise((resolve) => {
-                video.onloadedmetadata = () => {
-                    resolve(video);
-                };
+            await new Promise((resolve) => {
+                video.onloadedmetadata = () => resolve(video);
             });
+            
+            // Load the model after camera is ready
+            if (!detector) {
+                const modelLoaded = await loadModel();
+                if (!modelLoaded) {
+                    console.error('Failed to load model');
+                    return null;
+                }
+            }
+            return video;
         }
         
         async function detectPose() {
