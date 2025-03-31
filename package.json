@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "A web application for recognizing yoga poses using machine learning.",
   "main": "electron.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
