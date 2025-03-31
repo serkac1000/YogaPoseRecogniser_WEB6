@@ -48,11 +48,21 @@
         }
         
         async function detectPose() {
-            if (!isRunning) return;
+            if (!isRunning || !detector) return;
             
             const video = document.getElementById('webcam');
             try {
+                if (!video.videoWidth || !video.videoHeight) {
+                    console.log('Video not ready yet');
+                    return;
+                }
+                
                 const confidence = await detector.estimatePose(video);
+                if (!confidence) {
+                    console.log('No pose detected');
+                    return;
+                }
+                
                 const confidencePercentage = Math.round(confidence * 100);
                 
                 // Smooth confidence values to reduce jitter
@@ -68,7 +78,12 @@
                     }));
                 }
             } catch (error) {
-                console.error('Error during pose detection:', error);
+                console.error('Error during pose detection:', error.message || 'Unknown error');
+                // Reset detector if there's a critical error
+                if (error.message && error.message.includes('model')) {
+                    detector = null;
+                    setTimeout(setupCamera, 1000);
+                }
             }
         }
         
