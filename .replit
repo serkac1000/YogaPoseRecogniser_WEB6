@@ -3,7 +3,6 @@ modules = ["nodejs-20"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Run"
 
 [[workflows.workflow]]
 name = "Run"
