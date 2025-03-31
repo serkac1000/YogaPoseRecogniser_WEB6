@@ -1,17 +1,18 @@
-import express from 'express';
-import { createServer } from 'http';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { createServer as createViteServer, createLogger } from 'vite';
-import { nanoid } from 'nanoid';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+const express = require('express');
 const app = express();
+const path = require('path');
+const fs = require('fs');
+const { fileURLToPath } = require('url');
+const { createServer } = require('http');
+
+let currentPose = 0;
+const poses = ["Pose1", "Pose2", "Pose3"];
+let timer = 3;
+const POSE_THRESHOLD = 0.75; 
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
 
 function log(message, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -23,42 +24,41 @@ function log(message, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
-async function setupVite(app, server) {
-  const viteLogger = createLogger();
-  const serverOptions = {
-    middlewareMode: true,
-    hmr: { server },
-    allowedHosts: true
-  };
+// WebSocket setup for real-time communication
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 8080 });
 
-  const vite = await createViteServer(serverOptions);
-  app.use(vite.middlewares);
+wss.on('connection', (ws) => {
+  ws.on('message', (data) => {
+    const message = JSON.parse(data);
 
-  app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
-    try {
-      const template = await fs.promises.readFile(
-        path.resolve(__dirname, "..", "index.html"),
-        "utf-8"
-      );
-      const html = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(html);
-    } catch (e) {
-      vite.ssrFixStacktrace(e);
-      next(e);
+    if (message.type === 'poseDetection') {
+      const confidence = message.confidence;
+
+      if (confidence > POSE_THRESHOLD) {
+        timer -= 1;
+
+        if (timer <= 0) {
+          currentPose = (currentPose + 1) % poses.length;
+          timer = 3; 
+
+          ws.send(JSON.stringify({
+            type: 'nextPose',
+            pose: poses[currentPose],
+            timer: timer
+          }));
+        } else {
+          ws.send(JSON.stringify({
+            type: 'timer',
+            timeLeft: timer
+          }));
+        }
+      } else {
+        timer = 3; 
+      }
     }
   });
-}
-
-function serveStatic(app) {
-  const publicDir = path.join(__dirname, 'public');
-  app.use(express.static(publicDir));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(publicDir, 'index.html'));
-  });
-}
-
-const server = createServer(app);
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -85,18 +85,17 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
-  if (process.env.NODE_ENV === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
-  const port = 5e3;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true
-  }, () => {
-    log(`serving on port ${port}`);
-  });
-})();
+
+const server = createServer(app);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const publicDir = path.join(__dirname, 'public');
+app.use(express.static(publicDir));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
+
+app.listen(5000, '0.0.0.0', () => {
+  console.log('Server running on port 5000');
+});

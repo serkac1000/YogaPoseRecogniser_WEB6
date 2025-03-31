@@ -12,8 +12,49 @@
   </div>
 <body>
     <div class="container">
-        <h1>Welcome to Express App</h1>
-        <p>Your application is running on port 5000</p>
+        <h1>Yoga Pose Recognition</h1>
+        <div id="poseDisplay">Current Pose: <span id="currentPose">Pose1</span></div>
+        <div id="timerDisplay">Time remaining: <span id="timer">3</span>s</div>
+        <div id="confidenceDisplay">Confidence: <span id="confidence">0</span>%</div>
+        <video id="webcam" autoplay></video>
+        <canvas id="canvas"></canvas>
     </div>
+    <script>
+        const ws = new WebSocket('ws://localhost:8080');
+        let detector;
+        
+        async function setupCamera() {
+            const video = document.getElementById('webcam');
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+        }
+        
+        async function detectPose() {
+            const video = document.getElementById('webcam');
+            const confidence = await detector.estimatePose(video);
+            
+            document.getElementById('confidence').textContent = 
+                Math.round(confidence * 100);
+                
+            ws.send(JSON.stringify({
+                type: 'poseDetection',
+                confidence: confidence
+            }));
+        }
+        
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === 'timer') {
+                document.getElementById('timer').textContent = message.timeLeft;
+            } else if (message.type === 'nextPose') {
+                document.getElementById('currentPose').textContent = message.pose;
+                document.getElementById('timer').textContent = message.timer;
+            }
+        };
+        
+        setupCamera();
+        setInterval(detectPose, 100);
+    </script>
 </body>
 </html>
