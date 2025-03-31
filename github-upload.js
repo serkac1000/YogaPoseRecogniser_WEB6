@@ -3,28 +3,27 @@ const { execSync } = require('child_process');
 
 async function uploadToGithub() {
   try {
-    // Initialize git if not already initialized
+    // Initialize git
     execSync('git init');
     
-    // Configure git (replace with your info)
-    execSync('git config user.name "Your Name"');
-    execSync('git config user.email "your.email@example.com"');
+    // Create .gitignore
+    execSync('echo "node_modules/\nelectron-dist/\n.DS_Store" > .gitignore');
     
     // Add all files
     execSync('git add .');
     
     // Commit changes
-    execSync('git commit -m "Initial commit: Yoga Pose Recognizer"');
+    execSync('git commit -m "Initial commit: Yoga Pose Recognition App"');
     
-    // Add your GitHub repository URL (replace with your repo URL)
-    execSync('git remote add origin YOUR_GITHUB_REPO_URL');
+    // Add GitHub repository URL (replace with your repository URL)
+    execSync('git remote add origin https://github.com/YOUR_USERNAME/yoga-pose-recognition.git');
     
     // Push to GitHub
-    execSync('git push -u origin main');
+    execSync('git push -u origin main --force');
     
     console.log('Successfully uploaded to GitHub!');
   } catch (error) {
-    console.error('Error uploading to GitHub:', error.message);
+    console.error('Error uploading to GitHub:', error);
   }
 }
 

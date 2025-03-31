@@ -1,35 +1,30 @@
 
-# YogaPose Recognizer v6.0.0
+# Yoga Pose Recognition App
 
-A web application for recognizing yoga poses using machine learning.
+Real-time yoga pose recognition using machine learning.
 
-## Installation Instructions
+## Local Setup
 
-### Running on Replit
-1. Fork this repository on Replit
-2. Click the "Run" button to start the development server
-3. The application will be available at the provided URL
+1. Clone the repository:
+```bash
+git clone https://github.com/YOUR_USERNAME/yoga-pose-recognition.git
+cd yoga-pose-recognition
+```
 
-### Running the Windows Executable
-1. Download `YogaPoseRecognizer.exe` from the `dist` folder
-2. Double-click the executable to run
-3. The application will start and open in your default web browser
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the server:
+```bash
+node dist/index.js
+```
+
+4. Open your browser and visit: `http://localhost:5000`
 
 ## Features
-- Real-time yoga pose recognition
-- Enhanced skeleton visualization
+- Real-time pose detection
 - Timer functionality
-- Improved UI for better user experience
-- Windows executable support
-
-## Development
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build Windows executable
-npm run build:win
-```
+- Confidence scoring
+- Multiple pose recognition
