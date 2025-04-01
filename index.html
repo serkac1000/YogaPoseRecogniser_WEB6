@@ -62,13 +62,21 @@ async function detectPose() {
 
 document.getElementById('startBtn').onclick = async () => {
     try {
-        poseDetector = await window.teachablemachine.posenet.load(
-            'https://teachablemachine.withgoogle.com/models/gIF64n3nR/model.json',
-            'https://teachablemachine.withgoogle.com/models/gIF64n3nR/metadata.json'
-        );
-        detectPose();
+        const modelURL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/model.json';
+        const metadataURL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/metadata.json';
+        
+        console.log('Loading model...');
+        const response = await fetch(modelURL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        poseDetector = await window.teachablemachine.posenet.load(modelURL, metadataURL);
+        console.log('Model loaded successfully');
+        await detectPose();
     } catch (error) {
         console.error('Failed to load model:', error);
+        alert('Error loading the pose detection model. Please check your internet connection and try again.');
     }
 };
 </script>
