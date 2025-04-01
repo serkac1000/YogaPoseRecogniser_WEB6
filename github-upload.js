@@ -21,7 +21,7 @@ async function uploadToGithub() {
     }
     
     execSync('git remote remove origin');  // Remove if exists
-    execSync(`git remote add origin https://${token}@github.com/YogaPoseRecognizer/yoga-pose-web.git`);
+    execSync(`git remote add origin https://${token}@github.com/YogaPoseRecognizer/Yoga9.git`);
     execSync('git push -f origin main');
     
     console.log('Successfully uploaded to GitHub!');
