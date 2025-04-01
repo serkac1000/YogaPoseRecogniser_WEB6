@@ -1,0 +1,46 @@
+status of 404 (Not Found)Understand this errorAI
+pose3.svg:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 (Not Found)Understand this errorAI
+pose1.svg:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 (Not Found)Understand this errorAI
+favicon.ico:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 (Not Found)Understand this errorAI
+index-C8KxHhJA.js:22092 Model URL updated to: https://teachablemachine.withgoogle.com/models/gIF64n3nR/
+index-C8KxHhJA.js:22092 Loading model from: https://teachablemachine.withgoogle.com/models/gIF64n3nR/
+index-C8KxHhJA.js:22471 The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127
+(anonymous) @ index-C8KxHhJA.js:22471Understand this warningAI
+index-C8KxHhJA.js:22092 TensorFlow backend initialized: webgl
+index-C8KxHhJA.js:22092 Model loaded successfully from URL
+index-C8KxHhJA.js:22092 Loaded labels: Array(3)
+index-C8KxHhJA.js:22092 Failed to load Teachable Machine model, attempting to load local demo model
+nM @ index-C8KxHhJA.js:22092Understand this warningAI
+index-C8KxHhJA.js:22092 Loaded demo model with labels: Array(3)
+index-C8KxHhJA.js:29572 Pose detector model loaded successfully
+5index-C8KxHhJA.js:29572 Error during pose detection: Error: Requested texture size [0x0] is invalid.
+    at cae (index-C8KxHhJA.js:12999:1090)
+    at pm (index-C8KxHhJA.js:14232:224)
+    at kle (index-C8KxHhJA.js:14232:1117)
+    at Mb.createUnsignedBytesMatrixTexture (index-C8KxHhJA.js:14247:3249)
+    at Rue.acquireTexture (index-C8KxHhJA.js:14382:962)
+    at gw.acquireTexture (index-C8KxHhJA.js:14504:15042)
+    at gw.uploadToGPU (index-C8KxHhJA.js:14504:14558)
+    at gw.getTexture (index-C8KxHhJA.js:14504:8840)
+    at Object.Ope [as kernelFunc] (index-C8KxHhJA.js:18748:775)
+    at a (index-C8KxHhJA.js:342:6724)
+C @ index-C8KxHhJA.js:29572
+setInterval
+(anonymous) @ index-C8KxHhJA.js:29572
+Zy @ index-C8KxHhJA.js:40
+qu @ index-C8KxHhJA.js:40
+oW @ index-C8KxHhJA.js:40
+el @ index-C8KxHhJA.js:40
+g$ @ index-C8KxHhJA.js:40
+Fa @ index-C8KxHhJA.js:38
+(anonymous) @ index-C8KxHhJA.js:40Understand this errorAI
+index-C8KxHhJA.js:29572 Camera stream started successfully
