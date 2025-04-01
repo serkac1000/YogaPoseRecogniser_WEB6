@@ -66,28 +66,12 @@ document.getElementById('startBtn').onclick = async () => {
     try {
         const webcam = document.getElementById('webcam');
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            // Stop any existing streams
-            if (webcam.srcObject) {
-                const tracks = webcam.srcObject.getTracks();
-                tracks.forEach(track => track.stop());
-            }
-            
-            // Request camera with specific constraints
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    width: 640,
-                    height: 480,
-                    frameRate: { ideal: 30 },
-                    facingMode: 'user'
-                },
-                audio: false
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: true,
+                audio: false 
             });
             webcam.srcObject = stream;
-            await new Promise((resolve, reject) => {
-                webcam.onloadeddata = resolve;
-                webcam.onerror = reject;
-                setTimeout(reject, 3000); // Timeout after 3s
-            });
+            await new Promise(resolve => webcam.onloadeddata = resolve);
         }
         const modelIndicator = document.getElementById('modelIndicator');
         modelIndicator.style.display = 'block';
