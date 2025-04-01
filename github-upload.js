@@ -4,30 +4,34 @@ const { execSync } = require('child_process');
 async function uploadToGithub() {
   try {
     // Configure git
-    execSync('git config --global user.name "YogaPoseRecognizer"');
-    execSync('git config --global user.email "yoga@example.com"');
+    execSync('git config --global user.name "YogaPoseRecognizer"', { stdio: 'inherit' });
+    execSync('git config --global user.email "yoga@example.com"', { stdio: 'inherit' });
     
     // Initialize git if needed
-    execSync('git init');
-    
-    // Add and commit files
-    execSync('git add .');
-    execSync('git commit -m "Initial commit: Yoga Pose Recognition App"');
-    
-    // Push to new repository using token
-    const token = process.env.GITHUB_TOKEN;
-    if (!token) {
-      throw new Error('GitHub token not found in environment variables');
+    try {
+      execSync('git init', { stdio: 'inherit' });
+    } catch (error) {
+      console.log('Git repository already initialized');
     }
     
-    execSync('git remote remove origin');  // Remove if exists
-    execSync(`git remote add origin https://${token}@github.com/YogaPoseRecognizer/Yoga9.git`);
-    execSync('git push -f origin main');
+    // Add and commit files
+    execSync('git add .', { stdio: 'inherit' });
+    execSync('git commit -m "Initial commit: Yoga Pose Recognition App"', { stdio: 'inherit' });
+    
+    // Push to repository using token
+    const token = process.env.GITHUB_TOKEN;
+    if (!token) {
+      throw new Error('GitHub token not found. Please add GITHUB_TOKEN to your environment variables.');
+    }
+    
+    execSync('git remote remove origin 2>/dev/null || true', { stdio: 'inherit' });
+    execSync(`git remote add origin https://${token}@github.com/YogaPoseRecognizer/YogaPoseRecognition.git`, { stdio: 'inherit' });
+    execSync('git push -f origin main', { stdio: 'inherit' });
     
     console.log('Successfully uploaded to GitHub!');
   } catch (error) {
     console.error('Error uploading to GitHub:', error.message);
-    throw error;
+    process.exit(1);
   }
 }
 
