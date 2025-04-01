@@ -77,8 +77,10 @@ document.getElementById('startBtn').onclick = async () => {
                 video: {
                     width: 640,
                     height: 480,
-                    frameRate: { ideal: 30 }
-                }
+                    frameRate: { ideal: 30 },
+                    facingMode: 'user'
+                },
+                audio: false
             });
             webcam.srcObject = stream;
             await new Promise((resolve, reject) => {
