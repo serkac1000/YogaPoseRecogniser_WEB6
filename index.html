@@ -99,16 +99,22 @@ document.getElementById('startBtn').onclick = async () => {
 
         // Try loading custom model first
         try {
-            const modelURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/model.json';
-            const metadataURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/metadata.json';
+            const modelURL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/model.json';
+            const metadataURL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/metadata.json';
 
             console.log('Loading model...');
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for resources to load
-            const response = await fetch(modelURL);
-            if (!response.ok) throw new Error(`Model fetch failed: ${response.status}`);
-            console.log('Model fetch response:', response.status, response.statusText);
-            const modelData = await response.json();
-            console.log('Model data:', modelData);
+            try {
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Increased wait time
+                const response = await fetch(modelURL);
+                if (!response.ok) throw new Error(`Model fetch failed: ${response.status}`);
+                console.log('Model fetch response:', response.status, response.statusText);
+                const modelData = await response.json();
+                console.log('Model data:', modelData);
+                
+                poseDetector = await window.teachablemachine.posenet.load(modelURL, metadataURL);
+                console.log('Custom model loaded successfully');
+                modelIndicator.style.backgroundColor = 'rgba(75, 181, 67, 0.8)';
+                modelIndicator.textContent = 'Custom Model';
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
