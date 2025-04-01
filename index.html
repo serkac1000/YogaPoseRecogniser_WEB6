@@ -61,12 +61,37 @@ async function detectPose() {
     requestAnimationFrame(detectPose);
 }
 
+async function setupWebcam() {
+    const video = document.getElementById('webcam');
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: 640,
+                height: 480,
+                facingMode: 'user'
+            },
+            audio: false
+        });
+        video.srcObject = stream;
+        return new Promise((resolve) => {
+            video.onloadedmetadata = () => {
+                resolve(video);
+            };
+        });
+    } catch (error) {
+        console.error('Error accessing camera:', error);
+        throw error;
+    }
+}
+
 document.getElementById('startBtn').onclick = async () => {
     try {
         const modelIndicator = document.getElementById('modelIndicator');
         modelIndicator.style.display = 'block';
         modelIndicator.style.backgroundColor = 'rgba(255, 165, 0, 0.8)';
         modelIndicator.textContent = 'Loading...';
+        
+        await setupWebcam();
 
         // Try loading custom model first
         try {
