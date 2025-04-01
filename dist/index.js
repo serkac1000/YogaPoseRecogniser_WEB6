@@ -1,8 +1,11 @@
+import express from 'express';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-const express = require('express');
-const http = require('http');
-const { WebSocketServer } = require('ws');
-const path = require('path');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 let currentPose = 0;
@@ -11,7 +14,7 @@ let timer = 3;
 const POSE_THRESHOLD = 0.35;
 const DEFAULT_CONFIDENCE = 0.37;
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -30,16 +33,18 @@ app.post('/export-github', async (req, res) => {
   }
 });
 
-const server = http.createServer(app);
+const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
 wss.on('connection', (ws) => {
+  console.log('Client connected');
+
   ws.on('message', (data) => {
     const message = JSON.parse(data);
     if (message.type === 'poseDetection') {
       const confidences = message.confidences || [0, 0, 0];
       const currentConfidence = confidences[currentPose];
-      
+
       ws.send(JSON.stringify({
         type: 'updateDisplay',
         confidences: confidences,
