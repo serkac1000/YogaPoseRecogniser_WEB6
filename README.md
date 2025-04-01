@@ -1,30 +1,41 @@
 
-# Yoga Pose Recognition App
+# Yoga Pose Recognition Web App
 
-Real-time yoga pose recognition using machine learning.
+Real-time yoga pose recognition using machine learning with TensorFlow.js and Teachable Machine.
 
-## Local Setup
+## Features
+- Real-time pose detection using webcam
+- Confidence percentage display
+- Timer functionality for holding poses
+- Pose comparison with reference images
+- GitHub export capability
 
-1. Clone the repository:
-```bash
-git clone https://github.com/YOUR_USERNAME/yoga-pose-recognition.git
-cd yoga-pose-recognition
-```
+## Installation
 
+1. Clone this repository or use the "Use Template" button on Replit
 2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Start the server:
+## Running the Application
+
+1. Start the server:
 ```bash
-node dist/index.js
+npm run start
 ```
+2. Open your browser and visit `http://localhost:5000`
 
-4. Open your browser and visit: `http://localhost:5000`
+## Usage
+1. Click "Start Recognition" to begin pose detection
+2. Hold the pose similar to the reference image
+3. Watch the confidence percentage and timer
+4. Click "Stop" to end detection
 
-## Features
-- Real-time pose detection
-- Timer functionality
-- Confidence scoring
-- Multiple pose recognition
+## Development Notes
+- Built with TensorFlow.js and Teachable Machine
+- Uses WebSocket for real-time communication
+- Compatible with modern browsers supporting WebRTC
+
+## License
+MIT License - See LICENSE file for details
