@@ -42,32 +42,29 @@ wss.on('connection', (ws) => {
     const message = JSON.parse(data);
     if (message.type === 'poseDetection') {
       const confidences = message.confidences || [0, 0, 0];
-      const currentConfidence = confidences[currentPose] || 0;
+      const currentConfidence = confidences[currentPose];
       
+      ws.send(JSON.stringify({
+        type: 'updateDisplay',
+        confidences: confidences,
+        currentPose: currentPose,
+        timer: timer
+      }));
+
       if (currentConfidence > POSE_THRESHOLD) {
-        timer = Math.max(0, timer - 1);
-        if (timer === 0) {
-          currentPose = (currentPose + 1) % poses.length;
-          timer = 3;
-          ws.send(JSON.stringify({
-            type: 'nextPose',
-            pose: poses[currentPose],
-            timer: timer,
-            confidences: confidences
-          }));
-        } else {
-          ws.send(JSON.stringify({
-            type: 'timer',
-            timeLeft: timer,
-            confidences: confidences
-          }));
+        if (timer > 0) {
+          timer--;
+          if (timer === 0) {
+            currentPose = (currentPose + 1) % poses.length;
+            timer = 3;
+            ws.send(JSON.stringify({
+              type: 'nextPose',
+              pose: poses[currentPose]
+            }));
+          }
         }
       } else {
         timer = 3;
-        ws.send(JSON.stringify({
-          type: 'confidences',
-          confidences: confidences
-        }));
       }
     }
   });

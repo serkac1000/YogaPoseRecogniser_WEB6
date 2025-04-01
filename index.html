@@ -20,11 +20,55 @@
                     <div>Pose 3: <span id="confidence3">0</span>%</div>
                 </div>
 <script>
-window.updateConfidences = function(values) {
-    for(let i = 0; i < 3; i++) {
-        const confidenceEl = document.getElementById(`confidence${i+1}`);
-        const percentage = values[i] ? Math.round(values[i] * 100) : 0;
-        confidenceEl.textContent = percentage;
+const ws = new WebSocket(`ws://${window.location.hostname}:5000`);
+let poseDetector;
+
+ws.onmessage = async (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === 'updateDisplay') {
+        // Update confidence percentages
+        for(let i = 0; i < 3; i++) {
+            const confidenceEl = document.getElementById(`confidence${i+1}`);
+            const percentage = Math.round((data.confidences[i] || 0) * 100);
+            confidenceEl.textContent = percentage;
+        }
+        
+        // Update timer
+        document.querySelector('.timer').textContent = 
+            data.timer > 0 ? `Hold for ${data.timer} more seconds` : 'Move to next pose';
+    } else if (data.type === 'nextPose') {
+        // Update pose image and highlight
+        document.querySelector('.pose-display h3').textContent = data.pose;
+        document.getElementById('poseImage').src = 
+            `https://teachablemachine.withgoogle.com/models/gIF64n3nR/${data.pose.toLowerCase()}.jpg`;
+    }
+};
+
+async function detectPose() {
+    if (!poseDetector) return;
+    try {
+        const pose = await poseDetector.estimatePose(document.getElementById('webcam'));
+        if (pose) {
+            ws.send(JSON.stringify({
+                type: 'poseDetection',
+                confidences: pose.poseProbabilities
+            }));
+        }
+    } catch (error) {
+        console.error('Error during pose detection:', error);
+    }
+    requestAnimationFrame(detectPose);
+}
+
+document.getElementById('startBtn').onclick = async () => {
+    try {
+        poseDetector = await window.teachablemachine.posenet.load(
+            'https://teachablemachine.withgoogle.com/models/gIF64n3nR/model.json',
+            'https://teachablemachine.withgoogle.com/models/gIF64n3nR/metadata.json'
+        );
+        detectPose();
+    } catch (error) {
+        console.error('Failed to load model:', error);
     }
 };
 </script>
