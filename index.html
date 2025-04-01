@@ -46,10 +46,11 @@ ws.onmessage = async (event) => {
 };
 
 async function detectPose() {
-    if (!poseDetector) return;
+    const video = document.getElementById('webcam');
+    if (!poseDetector || !video.videoWidth || !video.videoHeight) return;
     try {
-        const pose = await poseDetector.estimatePose(document.getElementById('webcam'));
-        if (pose) {
+        const pose = await poseDetector.estimatePose(video);
+        if (pose && pose.poseProbabilities) {
             ws.send(JSON.stringify({
                 type: 'poseDetection',
                 confidences: pose.poseProbabilities
@@ -91,7 +92,10 @@ document.getElementById('startBtn').onclick = async () => {
         modelIndicator.style.backgroundColor = 'rgba(255, 165, 0, 0.8)';
         modelIndicator.textContent = 'Loading...';
         
-        await setupWebcam();
+        const video = await setupWebcam();
+        await new Promise(resolve => {
+            video.onloadeddata = resolve;
+        });
 
         // Try loading custom model first
         try {
