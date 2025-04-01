@@ -41,12 +41,14 @@ body {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: rgba(255, 165, 0, 0.8);
+    background: rgba(255, 0, 0, 0.9);
     color: white;
     padding: 8px 16px;
     border-radius: 20px;
-    font-size: 14px;
-    z-index: 100;
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .confidence-overlay {
