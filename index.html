@@ -1,27 +1,29 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Express App</title>
+    <title>Yoga Pose Recognition</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Yoga Pose Recognition</h1>
-        <div class="controls">
-            <button id="startBtn" class="control-button">Start</button>
-            <button id="stopBtn" class="control-button">Stop</button>
-        </div>
-        <div class="status-panel">
-            <div id="poseDisplay">Current Pose: <span id="currentPose">Pose1</span></div>
-            <div id="timerDisplay">Time remaining: <span id="timer">3</span>s</div>
-            <div id="confidenceDisplay">Confidence: <span id="confidence">0</span>%</div>
-        </div>
-        <div class="camera-container">
-            <video id="webcam" autoplay></video>
-            <canvas id="canvas"></canvas>
+        <div class="main-content">
+            <div class="camera-section">
+                <video id="webcam" autoplay></video>
+                <canvas id="canvas"></canvas>
+            </div>
+            <div class="reference-section">
+                <img src="https://teachablemachine.withgoogle.com/models/gIF64n3nR/pose1.jpg" alt="Pose 1" class="reference-pose">
+                <div class="stats">
+                    <div class="confidence">Confidence: <span id="confidence">0</span>%</div>
+                    <div class="timer">Hold Time: <span id="timer">3</span>s</div>
+                </div>
+                <div class="controls">
+                    <button id="startBtn">Start Recognition</button>
+                    <button id="stopBtn">Stop</button>
+                </div>
+            </div>
         </div>
     </div>
     <script>
@@ -30,20 +32,18 @@
         let isRunning = false;
         let lastConfidence = 0;
         const MODEL_URL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/';
-        
+
         async function loadModel() {
             try {
                 detector = await tmPose.load(MODEL_URL + 'model.json', MODEL_URL + 'metadata.json');
                 console.log('Model loaded successfully');
                 return true;
             } catch (error) {
-                const errorMessage = 'Failed to load Teachable Machine model. Please check your internet connection and try again.';
-                alert(errorMessage);
-                console.error(errorMessage, error);
+                console.error('Failed to load model:', error);
                 return false;
             }
         }
-        
+
         async function setupCamera() {
             const video = document.getElementById('webcam');
             const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -57,8 +57,7 @@
             await new Promise((resolve) => {
                 video.onloadedmetadata = () => resolve(video);
             });
-            
-            // Load the model after camera is ready
+
             if (!detector) {
                 const modelLoaded = await loadModel();
                 if (!modelLoaded) {
@@ -68,67 +67,48 @@
             }
             return video;
         }
-        
+
         async function detectPose() {
             if (!isRunning || !detector) return;
-            
+
             const video = document.getElementById('webcam');
             try {
-                if (!video.videoWidth || !video.videoHeight) {
-                    console.log('Video not ready yet');
-                    return;
-                }
-                
                 const confidence = await detector.estimatePose(video);
-                if (!confidence) {
-                    console.log('No pose detected');
-                    return;
-                }
-                
+                if (!confidence) return;
+
                 const confidencePercentage = Math.round(confidence * 100);
-                
-                // Smooth confidence values to reduce jitter
                 lastConfidence = lastConfidence * 0.7 + confidencePercentage * 0.3;
                 const smoothedConfidence = Math.round(lastConfidence);
-                
+
                 document.getElementById('confidence').textContent = smoothedConfidence;
-                
-                if (smoothedConfidence > 46) { // Match server threshold
+
+                if (smoothedConfidence > 46) {
                     ws.send(JSON.stringify({
                         type: 'poseDetection',
                         confidence: smoothedConfidence / 100
                     }));
                 }
             } catch (error) {
-                console.error('Error during pose detection:', error.message || 'Unknown error');
-                // Reset detector if there's a critical error
-                if (error.message && error.message.includes('model')) {
-                    detector = null;
-                    setTimeout(setupCamera, 1000);
-                }
+                console.error('Error during pose detection:', error);
             }
         }
-        
+
         ws.onmessage = (event) => {
             const message = JSON.parse(event.data);
-            
             if (message.type === 'timer') {
                 document.getElementById('timer').textContent = message.timeLeft;
-            } else if (message.type === 'nextPose') {
-                document.getElementById('currentPose').textContent = message.pose;
-                document.getElementById('timer').textContent = message.timer;
             }
         };
-        
+
         document.getElementById('startBtn').addEventListener('click', () => {
             isRunning = true;
             detectPose();
         });
-        
+
         document.getElementById('stopBtn').addEventListener('click', () => {
             isRunning = false;
         });
-        
+
         setupCamera().then(() => {
             setInterval(() => {
                 if (isRunning) {
