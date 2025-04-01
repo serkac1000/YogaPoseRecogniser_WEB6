@@ -19,10 +19,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.post('/export-github', async (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.json({ success: false, error: 'GitHub token is required' });
+  }
   try {
     execSync('git add .');
     execSync('git commit -m "Export: Yoga Pose Recognition App"');
-    execSync('git push origin main');
+    execSync(`git push https://${token}@github.com/serkac1000/YogaPoseRecogniser_WEB6.git main`);
     res.json({ success: true });
   } catch (error) {
     res.json({ success: false, error: error.message });

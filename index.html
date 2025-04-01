@@ -26,9 +26,18 @@
                 </div>
                 <script>
                     async function exportToGithub() {
+                        const token = prompt("Please enter your GitHub token:");
+                        if (!token) {
+                            alert('Token is required for GitHub export');
+                            return;
+                        }
                         try {
                             const response = await fetch('/export-github', {
-                                method: 'POST'
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ token })
                             });
                             const result = await response.json();
                             if (result.success) {
