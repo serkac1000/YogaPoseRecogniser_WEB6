@@ -7,15 +7,14 @@ async function uploadToGithub() {
     execSync('git config --global user.name "YogaPoseRecognizer"', { stdio: 'inherit' });
     execSync('git config --global user.email "yoga@example.com"', { stdio: 'inherit' });
     
-    // Initialize git if needed
-    execSync('git init', { stdio: 'inherit' });
+    // Add and commit changes
     execSync('git add .', { stdio: 'inherit' });
-    execSync('git commit -m "Initial commit: Yoga Pose Recognition App"', { stdio: 'inherit' });
+    execSync('git commit -m "Update: Yoga Pose Recognition App"', { stdio: 'inherit' });
     
-    // Push to GitHub
+    // Push to GitHub using token from environment variable
     const repoUrl = process.env.GIT_URL;
     if (!repoUrl) {
-      throw new Error('Please add your GitHub repository URL with token to Secrets as GIT_URL');
+      throw new Error('GitHub repository URL not found. Please add GIT_URL to your Secrets.');
     }
     
     execSync('git remote remove origin 2>/dev/null || true', { stdio: 'inherit' });
