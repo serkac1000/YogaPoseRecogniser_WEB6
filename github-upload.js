@@ -1,4 +1,5 @@
-const { execSync } = require('child_process');
+
+import { execSync } from 'child_process';
 
 async function uploadToGithub() {
   try {
