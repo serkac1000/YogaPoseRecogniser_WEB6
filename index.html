@@ -47,8 +47,16 @@ ws.onmessage = async (event) => {
 
 async function detectPose() {
     const video = document.getElementById('webcam');
-    if (!poseDetector || !video.videoWidth || !video.videoHeight) return;
+    if (!poseDetector) {
+        console.log('No pose detector available');
+        return;
+    }
+    if (!video.videoWidth || !video.videoHeight) {
+        console.log('Video not ready:', { width: video.videoWidth, height: video.videoHeight });
+        return;
+    }
     try {
+        console.log('Estimating pose...');
         const pose = await poseDetector.estimatePose(video);
         if (pose && pose.poseProbabilities) {
             ws.send(JSON.stringify({
@@ -99,19 +107,28 @@ document.getElementById('startBtn').onclick = async () => {
 
         // Try loading custom model first
         try {
-            const modelURL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/model.json';
-            const metadataURL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/metadata.json';
+            const modelURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/model.json';
+            const metadataURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/metadata.json';
 
-            console.log('Loading model...');
+            console.log('Model URL:', modelURL);
+            console.log('Metadata URL:', metadataURL);
+            
             try {
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Increased wait time
+                console.log('Attempting to fetch model...');
                 const response = await fetch(modelURL);
-                if (!response.ok) throw new Error(`Model fetch failed: ${response.status}`);
-                console.log('Model fetch response:', response.status, response.statusText);
-                const modelData = await response.json();
-                console.log('Model data:', modelData);
+                console.log('Model fetch status:', response.status);
+                console.log('Model fetch headers:', Object.fromEntries(response.headers));
                 
+                if (!response.ok) {
+                    throw new Error(`Model fetch failed: ${response.status} ${response.statusText}`);
+                }
+                
+                const modelData = await response.json();
+                console.log('Model data loaded:', modelData);
+                
+                console.log('Loading pose detector...');
                 poseDetector = await window.teachablemachine.posenet.load(modelURL, metadataURL);
+                console.log('Pose detector loaded successfully');
                 console.log('Custom model loaded successfully');
                 modelIndicator.style.backgroundColor = 'rgba(75, 181, 67, 0.8)';
                 modelIndicator.textContent = 'Custom Model';
