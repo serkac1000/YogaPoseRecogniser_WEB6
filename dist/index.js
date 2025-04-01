@@ -13,6 +13,7 @@ let currentPose = 0;
 const poses = ["Pose1", "Pose2", "Pose3"];
 let timer = 3;
 const POSE_THRESHOLD = 0.35; // Adjusted threshold for better recognition
+const DEFAULT_CONFIDENCE = 0.37; // Default confidence when no pose detected
 
 app.use(express.static(join(__dirname, 'public')));
 app.use(express.json());
