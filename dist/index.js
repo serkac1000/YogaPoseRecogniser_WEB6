@@ -41,8 +41,10 @@ wss.on('connection', (ws) => {
   ws.on('message', (data) => {
     const message = JSON.parse(data);
     if (message.type === 'poseDetection') {
-      const confidence = message.confidence;
-      if (confidence > POSE_THRESHOLD) {
+      const confidences = message.confidences || [0, 0, 0];
+      const currentConfidence = confidences[currentPose] || 0;
+      
+      if (currentConfidence > POSE_THRESHOLD) {
         timer = Math.max(0, timer - 1);
         if (timer === 0) {
           currentPose = (currentPose + 1) % poses.length;
@@ -50,14 +52,22 @@ wss.on('connection', (ws) => {
           ws.send(JSON.stringify({
             type: 'nextPose',
             pose: poses[currentPose],
-            timer: timer
+            timer: timer,
+            confidences: confidences
           }));
         } else {
           ws.send(JSON.stringify({
             type: 'timer',
-            timeLeft: timer
+            timeLeft: timer,
+            confidences: confidences
           }));
         }
+      } else {
+        timer = 3;
+        ws.send(JSON.stringify({
+          type: 'confidences',
+          confidences: confidences
+        }));
       }
     }
   });

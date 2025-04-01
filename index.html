@@ -14,12 +14,18 @@
             <div class="camera-view">
                 <video id="webcam" autoplay playsinline></video>
                 <canvas id="canvas"></canvas>
-                <div class="confidence-overlay">Confidence: <span id="confidence">0</span>%</div>
+                <div class="confidence-overlay">
+                    <div>Pose 1: <span id="confidence1">0</span>%</div>
+                    <div>Pose 2: <span id="confidence2">0</span>%</div>
+                    <div>Pose 3: <span id="confidence3">0</span>%</div>
+                </div>
 <script>
-window.updateConfidence = function(value) {
-    const confidenceEl = document.getElementById('confidence');
-    const percentage = Math.round((value || 0.37) * 100); // Default to 37% if no pose detected
-    confidenceEl.textContent = percentage;
+window.updateConfidences = function(values) {
+    for(let i = 0; i < 3; i++) {
+        const confidenceEl = document.getElementById(`confidence${i+1}`);
+        const percentage = values[i] ? Math.round(values[i] * 100) : 0;
+        confidenceEl.textContent = percentage;
+    }
 };
 </script>
             </div>
