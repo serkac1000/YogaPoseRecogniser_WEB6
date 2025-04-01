@@ -1,7 +1,7 @@
 
 {
   "name": "yoga-pose-recognizer",
-  "version": "1.0.0",
+  "version": "6.1.0",
   "description": "A web application for recognizing yoga poses using machine learning",
   "main": "dist/index.js",
   "type": "module",
