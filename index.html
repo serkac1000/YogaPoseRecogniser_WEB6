@@ -73,8 +73,10 @@ document.getElementById('startBtn').onclick = async () => {
             const modelURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/model.json';
             const metadataURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/metadata.json';
 
-            console.log('Loading custom model...');
+            console.log('Loading model...');
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for resources to load
             const response = await fetch(modelURL);
+            if (!response.ok) throw new Error(`Model fetch failed: ${response.status}`);
             console.log('Model fetch response:', response.status, response.statusText);
             const modelData = await response.json();
             console.log('Model data:', modelData);
