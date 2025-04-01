@@ -33,7 +33,7 @@ ws.onmessage = async (event) => {
             const percentage = Math.round((data.confidences[i] || 0) * 100);
             confidenceEl.textContent = percentage;
         }
-        
+
         // Update timer
         document.querySelector('.timer').textContent = 
             data.timer > 0 ? `Hold for ${data.timer} more seconds` : 'Move to next pose';
@@ -72,7 +72,7 @@ document.getElementById('startBtn').onclick = async () => {
         try {
             const modelURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/model.json';
             const metadataURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/metadata.json';
-            
+
             console.log('Loading custom model...');
             const response = await fetch(modelURL);
             console.log('Model fetch response:', response.status, response.statusText);
@@ -81,7 +81,7 @@ document.getElementById('startBtn').onclick = async () => {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         poseDetector = await window.teachablemachine.posenet.load(modelURL, metadataURL);
         console.log('Model loaded successfully');
         modelIndicator.style.backgroundColor = 'rgba(75, 181, 67, 0.8)';
@@ -93,10 +93,10 @@ document.getElementById('startBtn').onclick = async () => {
             console.log('Loading demo model...');
             const demoModelURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/model.json';
             const demoMetadataURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/metadata.json';
-            
+
             modelIndicator.style.backgroundColor = 'rgba(255, 99, 71, 0.8)';
             modelIndicator.textContent = 'Demo Mode';
-            
+
             poseDetector = await window.teachablemachine.posenet.load(demoModelURL, demoMetadataURL);
             console.log('Demo model loaded successfully');
             await detectPose();
