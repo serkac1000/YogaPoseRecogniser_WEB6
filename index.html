@@ -8,49 +8,24 @@
 </head>
 <body>
     <div class="container">
-        <div class="main-content">
-            <div class="camera-section">
+        <div class="recognition-section">
+            <div class="camera-view">
                 <video id="webcam" autoplay></video>
                 <canvas id="canvas"></canvas>
+                <div class="confidence-overlay">Confidence: <span id="confidence">0</span>%</div>
             </div>
-            <div class="reference-section">
-                <img src="https://teachablemachine.withgoogle.com/models/gIF64n3nR/pose1.jpg" alt="Pose 1" class="reference-pose">
-                <div class="stats">
-                    <div class="confidence">Confidence: <span id="confidence">0</span>%</div>
-                    <div class="timer">Hold Time: <span id="timer">3</span>s</div>
-                </div>
-                <div class="controls">
-                    <button id="startBtn">Start Recognition</button>
-                    <button id="stopBtn">Stop</button>
-                    <button id="exportBtn" onclick="exportToGithub()">Export to GitHub</button>
-                </div>
-                <script>
-                    async function exportToGithub() {
-                        const token = prompt("Please enter your GitHub token:");
-                        if (!token) {
-                            alert('Token is required for GitHub export');
-                            return;
-                        }
-                        try {
-                            const response = await fetch('/export-github', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ token })
-                            });
-                            const result = await response.json();
-                            if (result.success) {
-                                alert('Successfully exported to GitHub! Check your repositories.');
-                            } else {
-                                alert('Export failed: ' + result.error);
-                            }
-                        } catch (error) {
-                            console.error('Export error:', error);
-                            alert('Export failed. Check console for details.');
-                        }
-                    }
-                </script>
+            <div class="controls">
+                <button id="startBtn">Start Recognition</button>
+                <button id="stopBtn">Stop</button>
+            </div>
+        </div>
+        <div class="reference-section">
+            <h2>Current Expected Pose</h2>
+            <img src="https://teachablemachine.withgoogle.com/models/gIF64n3nR/pose1.jpg" alt="Reference Pose" class="reference-pose">
+            <div class="pose-info">
+                <h3>Pose 1</h3>
+                <p>Hold this pose until detected with confidence</p>
+                <div class="timer">Hold Time: <span id="timer">3</span>s</div>
             </div>
         </div>
     </div>
