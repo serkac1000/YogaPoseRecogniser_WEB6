@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,117 +16,27 @@
                 <canvas id="canvas"></canvas>
                 <div class="confidence-overlay">Confidence: <span id="confidence">0</span>%</div>
             </div>
-            <div class="controls">
-                <button id="startBtn" class="primary-button">Start Recognition</button>
-                <button id="stopBtn" class="secondary-button">Stop</button>
-            </div>
+            <button id="startBtn" class="primary-button">Start Recognition</button>
+            <button id="stopBtn" class="secondary-button">Stop</button>
         </div>
+
         <div class="reference-section">
             <h2>Current Expected Pose</h2>
             <div class="pose-display">
-                <img src="https://teachablemachine.withgoogle.com/models/gIF64n3nR/pose1.jpg" alt="Reference Pose" class="reference-pose">
-                <div class="pose-info">
-                    <h3>Pose 1</h3>
-                    <div class="timer">Hold Time: <span id="timer">3</span>s</div>
+                <img id="poseImage" src="https://teachablemachine.withgoogle.com/models/gIF64n3nR/pose1.jpg" alt="Reference Pose">
+                <h3>Pose 1</h3>
+                <div class="timer">Hold this pose until detected</div>
+            </div>
+            <div class="pose-sequence">
+                <h3>Pose Sequence</h3>
+                <div class="sequence-images">
+                    <img src="https://teachablemachine.withgoogle.com/models/gIF64n3nR/pose1.jpg" alt="Pose 1" class="active">
+                    <img src="https://teachablemachine.withgoogle.com/models/gIF64n3nR/pose2.jpg" alt="Pose 2">
+                    <img src="https://teachablemachine.withgoogle.com/models/gIF64n3nR/pose3.jpg" alt="Pose 3">
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        const ws = new WebSocket(`ws://${window.location.hostname}:5000`);
-        let detector;
-        let isRunning = false;
-        let lastConfidence = 0;
-
-        async function loadModel() {
-            try {
-                const modelURL = "https://teachablemachine.withgoogle.com/models/gIF64n3nR/";
-                detector = await tmPose.load(modelURL + "model.json", modelURL + "metadata.json");
-                console.log("Model loaded successfully");
-                document.getElementById('startBtn').disabled = false;
-                return true;
-            } catch (error) {
-                console.error("Error loading model:", error);
-                return false;
-            }
-        }
-
-        async function setupCamera() {
-            const video = document.getElementById('webcam');
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        width: 640,
-                        height: 480,
-                        facingMode: 'user'
-                    } 
-                });
-                video.srcObject = stream;
-                return new Promise((resolve) => {
-                    video.onloadedmetadata = () => resolve(video);
-                });
-            } catch (error) {
-                console.error("Camera error:", error);
-                return null;
-            }
-        }
-
-        async function detectPose() {
-            if (!isRunning || !detector) return;
-            
-            const video = document.getElementById('webcam');
-            try {
-                const { pose, posenetOutput } = await detector.estimatePose(video);
-                const prediction = await detector.predict(posenetOutput);
-                
-                if (prediction.length > 0) {
-                    const confidence = prediction[0].probability;
-                    lastConfidence = lastConfidence * 0.7 + confidence * 0.3;
-                    const smoothedConfidence = Math.round(lastConfidence * 100);
-                    
-                    document.getElementById('confidence').textContent = smoothedConfidence;
-                    
-                    if (smoothedConfidence > 46) {
-                        ws.send(JSON.stringify({
-                            type: 'poseDetection',
-                            confidence: smoothedConfidence / 100
-                        }));
-                    }
-                }
-                
-                if (isRunning) {
-                    requestAnimationFrame(detectPose);
-                }
-            } catch (error) {
-                console.error("Detection error:", error);
-                if (isRunning) {
-                    requestAnimationFrame(detectPose);
-                }
-            }
-        }
-
-        document.getElementById('startBtn').addEventListener('click', async () => {
-            if (!detector) {
-                await loadModel();
-            }
-            isRunning = true;
-            detectPose();
-        });
-
-        document.getElementById('stopBtn').addEventListener('click', () => {
-            isRunning = false;
-        });
-
-        ws.onmessage = (event) => {
-            const message = JSON.parse(event.data);
-            if (message.type === 'timer') {
-                document.getElementById('timer').textContent = message.timeLeft;
-            }
-        };
-
-        // Initialize
-        loadModel();
-        setupCamera();
-    </script>
+    <script src="dist/index.js"></script>
 </body>
 </html>
