@@ -64,14 +64,17 @@ async function detectPose() {
 document.getElementById('startBtn').onclick = async () => {
     try {
         const modelIndicator = document.getElementById('modelIndicator');
+        modelIndicator.style.display = 'block';
         modelIndicator.style.backgroundColor = 'rgba(255, 165, 0, 0.8)';
         modelIndicator.textContent = 'Loading...';
 
-        const modelURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/model.json';
-        const metadataURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/metadata.json';
-        
-        console.log('Loading model...');
-        const response = await fetch(modelURL);
+        // Try loading custom model first
+        try {
+            const modelURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/model.json';
+            const metadataURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/metadata.json';
+            
+            console.log('Loading custom model...');
+            const response = await fetch(modelURL);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -82,15 +85,14 @@ document.getElementById('startBtn').onclick = async () => {
         modelIndicator.textContent = 'Custom Model';
         await detectPose();
     } catch (error) {
-        console.error('Failed to load model:', error);
-        modelIndicator.style.backgroundColor = 'rgba(255, 99, 71, 0.8)';
-        modelIndicator.textContent = 'Demo Mode';
-        
-        // Load demo model
-        try {
+        console.error('Failed to load custom model:', error);
+            // Fall back to demo model
             console.log('Loading demo model...');
-            const demoModelURL = 'https://teachablemachine.withgoogle.com/models/YOUR_DEMO_MODEL/model.json';
-            const demoMetadataURL = 'https://teachablemachine.withgoogle.com/models/YOUR_DEMO_MODEL/metadata.json';
+            const demoModelURL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/model.json';
+            const demoMetadataURL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/metadata.json';
+            
+            modelIndicator.style.backgroundColor = 'rgba(255, 99, 71, 0.8)';
+            modelIndicator.textContent = 'Demo Mode';
             
             poseDetector = await window.teachablemachine.posenet.load(demoModelURL, demoMetadataURL);
             console.log('Demo model loaded successfully');
