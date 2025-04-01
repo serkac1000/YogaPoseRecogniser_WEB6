@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,27 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yoga Pose Recognition</title>
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose"></script>
 </head>
 <body>
     <div class="container">
         <div class="recognition-section">
             <div class="camera-view">
-                <video id="webcam" autoplay></video>
+                <video id="webcam" autoplay playsinline></video>
                 <canvas id="canvas"></canvas>
                 <div class="confidence-overlay">Confidence: <span id="confidence">0</span>%</div>
             </div>
             <div class="controls">
-                <button id="startBtn">Start Recognition</button>
-                <button id="stopBtn">Stop</button>
+                <button id="startBtn" class="primary-button">Start Recognition</button>
+                <button id="stopBtn" class="secondary-button">Stop</button>
             </div>
         </div>
         <div class="reference-section">
             <h2>Current Expected Pose</h2>
-            <img src="https://teachablemachine.withgoogle.com/models/gIF64n3nR/pose1.jpg" alt="Reference Pose" class="reference-pose">
-            <div class="pose-info">
-                <h3>Pose 1</h3>
-                <p>Hold this pose until detected with confidence</p>
-                <div class="timer">Hold Time: <span id="timer">3</span>s</div>
+            <div class="pose-display">
+                <img src="https://teachablemachine.withgoogle.com/models/gIF64n3nR/pose1.jpg" alt="Reference Pose" class="reference-pose">
+                <div class="pose-info">
+                    <h3>Pose 1</h3>
+                    <div class="timer">Hold Time: <span id="timer">3</span>s</div>
+                </div>
             </div>
         </div>
     </div>
@@ -34,76 +38,78 @@
         let detector;
         let isRunning = false;
         let lastConfidence = 0;
-        const MODEL_URL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/';
 
         async function loadModel() {
             try {
-                detector = await tmPose.load(MODEL_URL + 'model.json', MODEL_URL + 'metadata.json');
-                console.log('Model loaded successfully');
+                const modelURL = "https://teachablemachine.withgoogle.com/models/gIF64n3nR/";
+                detector = await tmPose.load(modelURL + "model.json", modelURL + "metadata.json");
+                console.log("Model loaded successfully");
+                document.getElementById('startBtn').disabled = false;
                 return true;
             } catch (error) {
-                console.error('Failed to load model:', error);
+                console.error("Error loading model:", error);
                 return false;
             }
         }
 
         async function setupCamera() {
             const video = document.getElementById('webcam');
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    width: 640,
-                    height: 480,
-                    facingMode: 'user'
-                } 
-            });
-            video.srcObject = stream;
-            await new Promise((resolve) => {
-                video.onloadedmetadata = () => resolve(video);
-            });
-
-            if (!detector) {
-                const modelLoaded = await loadModel();
-                if (!modelLoaded) {
-                    document.getElementById('startBtn').disabled = true;
-                    return null;
-                }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: 640,
+                        height: 480,
+                        facingMode: 'user'
+                    } 
+                });
+                video.srcObject = stream;
+                return new Promise((resolve) => {
+                    video.onloadedmetadata = () => resolve(video);
+                });
+            } catch (error) {
+                console.error("Camera error:", error);
+                return null;
             }
-            return video;
         }
 
         async function detectPose() {
             if (!isRunning || !detector) return;
-
+            
             const video = document.getElementById('webcam');
             try {
-                const confidence = await detector.estimatePose(video);
-                if (!confidence) return;
-
-                const confidencePercentage = Math.round(confidence * 100);
-                lastConfidence = lastConfidence * 0.7 + confidencePercentage * 0.3;
-                const smoothedConfidence = Math.round(lastConfidence);
-
-                document.getElementById('confidence').textContent = smoothedConfidence;
-
-                if (smoothedConfidence > 46) {
-                    ws.send(JSON.stringify({
-                        type: 'poseDetection',
-                        confidence: smoothedConfidence / 100
-                    }));
+                const { pose, posenetOutput } = await detector.estimatePose(video);
+                const prediction = await detector.predict(posenetOutput);
+                
+                if (prediction.length > 0) {
+                    const confidence = prediction[0].probability;
+                    lastConfidence = lastConfidence * 0.7 + confidence * 0.3;
+                    const smoothedConfidence = Math.round(lastConfidence * 100);
+                    
+                    document.getElementById('confidence').textContent = smoothedConfidence;
+                    
+                    if (smoothedConfidence > 46) {
+                        ws.send(JSON.stringify({
+                            type: 'poseDetection',
+                            confidence: smoothedConfidence / 100
+                        }));
+                    }
+                }
+                
+                if (isRunning) {
+                    requestAnimationFrame(detectPose);
                 }
             } catch (error) {
-                console.error('Error during pose detection:', error);
+                console.error("Detection error:", error);
+                if (isRunning) {
+                    requestAnimationFrame(detectPose);
+                }
             }
         }
 
-        ws.onmessage = (event) => {
-            const message = JSON.parse(event.data);
-            if (message.type === 'timer') {
-                document.getElementById('timer').textContent = message.timeLeft;
+        document.getElementById('startBtn').addEventListener('click', async () => {
+            if (!detector) {
+                await loadModel();
             }
-        };
-
-        document.getElementById('startBtn').addEventListener('click', () => {
             isRunning = true;
             detectPose();
         });
@@ -112,13 +118,16 @@
             isRunning = false;
         });
 
-        setupCamera().then(() => {
-            setInterval(() => {
-                if (isRunning) {
-                    detectPose();
-                }
-            }, 100);
-        });
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (message.type === 'timer') {
+                document.getElementById('timer').textContent = message.timeLeft;
+            }
+        };
+
+        // Initialize
+        loadModel();
+        setupCamera();
     </script>
 </body>
 </html>
