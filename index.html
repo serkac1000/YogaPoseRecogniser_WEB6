@@ -75,6 +75,9 @@ document.getElementById('startBtn').onclick = async () => {
             
             console.log('Loading custom model...');
             const response = await fetch(modelURL);
+            console.log('Model fetch response:', response.status, response.statusText);
+            const modelData = await response.json();
+            console.log('Model data:', modelData);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
