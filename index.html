@@ -46,10 +46,9 @@ ws.onmessage = async (event) => {
 };
 
 async function detectPose() {
-    const webcam = document.getElementById('webcam');
-    if (!poseDetector || !webcam.readyState || webcam.readyState < 2) return;
+    if (!poseDetector) return;
     try {
-        const pose = await poseDetector.estimatePose(webcam);
+        const pose = await poseDetector.estimatePose(document.getElementById('webcam'));
         if (pose) {
             ws.send(JSON.stringify({
                 type: 'poseDetection',
@@ -64,15 +63,6 @@ async function detectPose() {
 
 document.getElementById('startBtn').onclick = async () => {
     try {
-        const webcam = document.getElementById('webcam');
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: true,
-                audio: false 
-            });
-            webcam.srcObject = stream;
-            await new Promise(resolve => webcam.onloadeddata = resolve);
-        }
         const modelIndicator = document.getElementById('modelIndicator');
         modelIndicator.style.display = 'block';
         modelIndicator.style.backgroundColor = 'rgba(255, 165, 0, 0.8)';
