@@ -37,6 +37,18 @@ body {
     object-fit: cover;
 }
 
+.model-indicator {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 165, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    z-index: 100;
+}
+
 .confidence-overlay {
     position: absolute;
     top: 20px;
