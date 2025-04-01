@@ -85,7 +85,21 @@ document.getElementById('startBtn').onclick = async () => {
         console.error('Failed to load model:', error);
         modelIndicator.style.backgroundColor = 'rgba(255, 99, 71, 0.8)';
         modelIndicator.textContent = 'Demo Mode';
-        // Load demo model or handle error
+        
+        // Load demo model
+        try {
+            console.log('Loading demo model...');
+            const demoModelURL = 'https://teachablemachine.withgoogle.com/models/YOUR_DEMO_MODEL/model.json';
+            const demoMetadataURL = 'https://teachablemachine.withgoogle.com/models/YOUR_DEMO_MODEL/metadata.json';
+            
+            poseDetector = await window.teachablemachine.posenet.load(demoModelURL, demoMetadataURL);
+            console.log('Demo model loaded successfully');
+            await detectPose();
+        } catch (demoError) {
+            console.error('Failed to load demo model:', demoError);
+            modelIndicator.textContent = 'Error: No Model Available';
+            modelIndicator.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+        }
     }
 };
 </script>
