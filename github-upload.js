@@ -1,33 +1,21 @@
-
 const { execSync } = require('child_process');
 
 async function uploadToGithub() {
   try {
-    // Configure git
-    execSync('git config --global user.name "YogaPoseRecognizer"', { stdio: 'inherit' });
-    execSync('git config --global user.email "yoga@example.com"', { stdio: 'inherit' });
-    
-    // Initialize git if needed
-    try {
-      execSync('git init', { stdio: 'inherit' });
-    } catch (error) {
-      console.log('Git repository already initialized');
-    }
-    
-    // Add and commit files
-    execSync('git add .', { stdio: 'inherit' });
-    execSync('git commit -m "Initial commit: Yoga Pose Recognition App"', { stdio: 'inherit' });
-    
-    // Push to repository using token
     const token = process.env.GITHUB_TOKEN;
     if (!token) {
-      throw new Error('GitHub token not found. Please add GITHUB_TOKEN to your environment variables.');
+      throw new Error('GitHub token not found. Please add GITHUB_TOKEN to your Secrets.');
     }
-    
+
+    // Add and commit files
+    execSync('git add .', { stdio: 'inherit' });
+    execSync('git commit -m "Export: Yoga Pose Recognition App"', { stdio: 'inherit' });
+
+    // Add remote and push
     execSync('git remote remove origin 2>/dev/null || true', { stdio: 'inherit' });
     execSync(`git remote add origin https://${token}@github.com/YogaPoseRecognizer/YogaPoseRecognition.git`, { stdio: 'inherit' });
     execSync('git push -f origin main', { stdio: 'inherit' });
-    
+
     console.log('Successfully uploaded to GitHub!');
   } catch (error) {
     console.error('Error uploading to GitHub:', error.message);
