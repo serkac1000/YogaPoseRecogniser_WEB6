@@ -1,21 +1,17 @@
 
-import express from 'express';
-import { createServer } from 'http';
-import { WebSocketServer } from 'ws';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const express = require('express');
+const http = require('http');
+const { WebSocketServer } = require('ws');
+const path = require('path');
 
 const app = express();
 let currentPose = 0;
 const poses = ["Pose1", "Pose2", "Pose3"];
 let timer = 3;
-const POSE_THRESHOLD = 0.35; // Adjusted threshold for better recognition
-const DEFAULT_CONFIDENCE = 0.37; // Default confidence when no pose detected
+const POSE_THRESHOLD = 0.35;
+const DEFAULT_CONFIDENCE = 0.37;
 
-app.use(express.static(join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -34,7 +30,7 @@ app.post('/export-github', async (req, res) => {
   }
 });
 
-const server = createServer(app);
+const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
 wss.on('connection', (ws) => {
