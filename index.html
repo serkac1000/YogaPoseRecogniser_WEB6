@@ -15,6 +15,13 @@
                 <video id="webcam" autoplay playsinline></video>
                 <canvas id="canvas"></canvas>
                 <div class="confidence-overlay">Confidence: <span id="confidence">0</span>%</div>
+<script>
+window.updateConfidence = function(value) {
+    const confidenceEl = document.getElementById('confidence');
+    const percentage = Math.round(value * 100);
+    confidenceEl.textContent = percentage;
+};
+</script>
             </div>
             <button id="startBtn" class="primary-button">Start Recognition</button>
             <button id="stopBtn" class="secondary-button">Stop</button>
