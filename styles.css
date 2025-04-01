@@ -85,3 +85,11 @@ button:hover {
 #stopBtn:hover {
     background-color: #da190b;
 }
+
+#exportBtn {
+    background-color: #2196F3;
+}
+
+#exportBtn:hover {
+    background-color: #1976D2;
+}

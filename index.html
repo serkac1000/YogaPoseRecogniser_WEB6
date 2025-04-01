@@ -22,7 +22,26 @@
                 <div class="controls">
                     <button id="startBtn">Start Recognition</button>
                     <button id="stopBtn">Stop</button>
+                    <button id="exportBtn" onclick="exportToGithub()">Export to GitHub</button>
                 </div>
+                <script>
+                    async function exportToGithub() {
+                        try {
+                            const response = await fetch('/export-github', {
+                                method: 'POST'
+                            });
+                            const result = await response.json();
+                            if (result.success) {
+                                alert('Successfully exported to GitHub! Check your repositories.');
+                            } else {
+                                alert('Export failed: ' + result.error);
+                            }
+                        } catch (error) {
+                            console.error('Export error:', error);
+                            alert('Export failed. Check console for details.');
+                        }
+                    }
+                </script>
             </div>
         </div>
     </div>

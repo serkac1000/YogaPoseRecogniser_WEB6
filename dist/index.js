@@ -18,6 +18,17 @@ app.use(express.static(join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.post('/export-github', async (req, res) => {
+  try {
+    execSync('git add .');
+    execSync('git commit -m "Export: Yoga Pose Recognition App"');
+    execSync('git push origin main');
+    res.json({ success: true });
+  } catch (error) {
+    res.json({ success: false, error: error.message });
+  }
+});
+
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 

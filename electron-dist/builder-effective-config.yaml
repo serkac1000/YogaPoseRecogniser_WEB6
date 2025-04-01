@@ -1,9 +1,0 @@
-directories:
-  output: electron-dist
-  buildResources: build
-appId: com.yogapose.app
-productName: YogaPose Recognizer
-win:
-  target: portable
-files: []
-electronVersion: 35.1.2
