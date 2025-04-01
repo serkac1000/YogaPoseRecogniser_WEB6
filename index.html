@@ -63,8 +63,12 @@ async function detectPose() {
 
 document.getElementById('startBtn').onclick = async () => {
     try {
-        const modelURL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/model.json';
-        const metadataURL = 'https://teachablemachine.withgoogle.com/models/gIF64n3nR/metadata.json';
+        const modelIndicator = document.getElementById('modelIndicator');
+        modelIndicator.style.backgroundColor = 'rgba(255, 165, 0, 0.8)';
+        modelIndicator.textContent = 'Loading...';
+
+        const modelURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/model.json';
+        const metadataURL = 'https://teachablemachine.withgoogle.com/models/fS2swbVr5/metadata.json';
         
         console.log('Loading model...');
         const response = await fetch(modelURL);
@@ -74,10 +78,14 @@ document.getElementById('startBtn').onclick = async () => {
         
         poseDetector = await window.teachablemachine.posenet.load(modelURL, metadataURL);
         console.log('Model loaded successfully');
+        modelIndicator.style.backgroundColor = 'rgba(75, 181, 67, 0.8)';
+        modelIndicator.textContent = 'Custom Model';
         await detectPose();
     } catch (error) {
         console.error('Failed to load model:', error);
-        alert('Error loading the pose detection model. Please check your internet connection and try again.');
+        modelIndicator.style.backgroundColor = 'rgba(255, 99, 71, 0.8)';
+        modelIndicator.textContent = 'Demo Mode';
+        // Load demo model or handle error
     }
 };
 </script>
